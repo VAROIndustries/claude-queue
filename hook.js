@@ -11,7 +11,11 @@
 //   CLAUDE_QUEUE_HOST       optional label for this machine (default: its hostname, or "cloud")
 //   CLAUDE_QUEUE_SEND_TEXT  "0" to send no message text, only state (default "1")
 //   CLAUDE_QUEUE_LINK       optional link template, e.g. https://example/{session_id}
-// File: ~/.claude-queue.json  {"url": "...", "key": "...", "host": "...", "sendText": true}
+// Files, first found wins: ~/.claude-queue.json, then config.json next to this script
+//   {"url": "...", "key": "...", "host": "...", "sendText": true,
+//    "projects": {"<claude.ai project uuid>": "Name to show"}}
+// The second one lets a private copy of the plugin carry its own settings into cloud
+// sessions, which can't see your home folder.
 'use strict';
 const fs = require('fs');
 const os = require('os');
@@ -22,7 +26,9 @@ const log = (...a) => { if (LOG) try { fs.appendFileSync(LOG, new Date().toISOSt
 
 function config() {
   let file = {};
-  try { file = JSON.parse(fs.readFileSync(path.join(os.homedir(), '.claude-queue.json'), 'utf8')); } catch {}
+  for (const f of [path.join(os.homedir(), '.claude-queue.json'), path.join(__dirname, 'config.json')]) {
+    try { file = JSON.parse(fs.readFileSync(f, 'utf8')); break; } catch {}
+  }
   const env = process.env;
   const sendText = env.CLAUDE_QUEUE_SEND_TEXT != null ? env.CLAUDE_QUEUE_SEND_TEXT !== '0' : file.sendText !== false;
   return {
@@ -30,6 +36,7 @@ function config() {
     key: env.CLAUDE_QUEUE_KEY || file.key || '',
     host: env.CLAUDE_QUEUE_HOST || file.host || '',
     link: env.CLAUDE_QUEUE_LINK || file.link || '',
+    projects: (file.projects && typeof file.projects === 'object') ? file.projects : {},
     sendText,
   };
 }
@@ -83,16 +90,22 @@ async function main() {
   }
   if (!cfg.url || !cfg.key) { log('not configured'); return; }
 
-  const remote = process.env.CLAUDE_CODE_REMOTE === 'true';
+  const env = process.env;
+  const remote = env.CLAUDE_CODE_REMOTE === 'true';
   const cwd = typeof input.cwd === 'string' ? input.cwd : '';
+  // A conversation in the Claude app runs in a scratch folder, so its folder name says
+  // nothing; name it after its claude.ai Project instead when there is one.
+  const fromApp = env.CLAUDE_CODE_SESSION_ORIGIN === 'claude_ai_chat';
+  const projectUuid = env.CLAUDE_PROJECT_UUID || '';
+  let project = cwd.split(/[\\/]+/).filter(Boolean).pop() || '';   // last folder, Windows paths too
+  if (fromApp) project = cfg.projects[projectUuid] || (projectUuid ? 'Project ' + projectUuid.slice(0, 8) : 'Chat');
   const body = {
     session_id: id,
     event,
     notification_type: ntype,
-    cwd,
-    // Last folder name; split on both separators so Windows paths work anywhere.
-    project: cwd.split(/[\\/]+/).filter(Boolean).pop() || '',
-    host: cfg.host || (remote ? 'cloud' : os.hostname()),
+    cwd: fromApp ? '' : cwd,
+    project,
+    host: cfg.host || (fromApp ? 'Claude app' : remote ? 'cloud' : os.hostname()),
     remote,
     link: cfg.link ? cfg.link.replace('{session_id}', encodeURIComponent(id)) : '',
   };

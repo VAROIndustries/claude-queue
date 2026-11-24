@@ -81,6 +81,12 @@ or set environment variables instead (they win over the file):
 | `CLAUDE_QUEUE_LINK` | optional link template with `{session_id}`, shown as an *Open session* button |
 | `CLAUDE_QUEUE_DEBUG` | `1` to log each report to `claude-queue-hook.log` in the temp folder |
 
+**Conversations in the Claude app** that run on Claude Code (ones that can use tools and files) fire
+these hooks too, but only with plugins added through your claude.ai plugin settings, and they can't see
+your home folder either. Make a private copy of the plugin with a `config.json` next to `hook.js` (same
+fields as above, plus an optional `"projects": {"<project uuid>": "Name"}` so cards show your claude.ai
+Project's name), zip it and add it in claude.ai. Don't publish that copy: it holds your ingest key.
+
 **Cloud sessions** don't read your local `~/.claude/settings.json` or your home folder, so the file above
 won't reach them, but plugin hooks do run there. Give them `CLAUDE_QUEUE_URL` and `CLAUDE_QUEUE_KEY` as
 environment variables in the cloud environment's settings, if your environment offers them; otherwise
