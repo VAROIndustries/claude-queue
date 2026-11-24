@@ -1,0 +1,13 @@
+{
+  "name": "claude-queue",
+  "description": "Claude Queue for Claude Code, from VARO Industries.",
+  "owner": { "name": "VARO Industries", "url": "https://github.com/VAROIndustries" },
+  "plugins": [
+    {
+      "name": "claude-queue",
+      "description": "One list of every Claude Code session waiting on you, across projects and machines.",
+      "source": "./",
+      "category": "productivity"
+    }
+  ]
+}

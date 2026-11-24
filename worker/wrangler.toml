@@ -1,0 +1,16 @@
+name = "claude-queue"
+main = "src/index.js"
+compatibility_date = "2026-11-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "claude-queue"
+database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+
+# Tidy up once an hour: drop sessions not heard from in 7 days.
+[triggers]
+crons = ["17 * * * *"]
+
+# Secrets (not in this file):
+#   wrangler secret put INGEST_KEY   # the hooks send this
+#   wrangler secret put VIEW_KEY     # the web page sends this

@@ -1,0 +1,10 @@
+{
+  "name": "claude-queue",
+  "version": "0.1.0",
+  "description": "One list of every Claude Code session that is waiting on you: permission prompts, questions and finished work, across all your projects and machines, cloud sessions included. Hooks report each session's state to a small Cloudflare Worker you host; its web page shows what needs you, oldest first.",
+  "author": { "name": "VARO Industries", "url": "https://varo.industries" },
+  "homepage": "https://github.com/VAROIndustries/claude-queue",
+  "repository": "https://github.com/VAROIndustries/claude-queue",
+  "license": "MIT",
+  "keywords": ["hooks", "notifications", "sessions", "dashboard", "cloudflare"]
+}
