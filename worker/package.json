@@ -2,6 +2,7 @@
   "name": "claude-queue-worker",
   "private": true,
   "scripts": {
+    "build:single": "npx esbuild@0.24 src/index.js --bundle --format=esm --loader:.html=text --outfile=dist/worker.js",
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "db:init": "wrangler d1 execute claude-queue --remote --file=schema.sql"

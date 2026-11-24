@@ -45,6 +45,11 @@ npx wrangler secret put VIEW_KEY           # you type this into the page
 npm run deploy
 ```
 
+No command line? `worker/dist/worker.js` is the whole Worker in one file (rebuild it with
+`npm run build:single`). Create a Worker in the Cloudflare dashboard, paste that file into its editor,
+then under its settings bind a D1 database as `DB` (run `worker/schema.sql` in the database's console)
+and add `INGEST_KEY` and `VIEW_KEY` as secrets.
+
 Use long random values for both keys (for example `openssl rand -hex 24`), and keep them different: the
 ingest key ends up on every machine you run Claude on, while the view key only goes in your browser.
 
